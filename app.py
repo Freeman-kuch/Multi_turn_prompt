@@ -22,28 +22,19 @@ from bot import DialogBot
 
 CONFIG = DefaultConfig()
 
-# Create adapter.
-# See https://aka.ms/about-bot-adapter to learn more about how bots work.
 SETTINGS = BotFrameworkAdapterSettings(CONFIG.APP_ID, CONFIG.APP_PASSWORD)  # this is the bot adapter setting
 ADAPTER = BotFrameworkAdapter(SETTINGS)  # this is the bot adapter
 
 
-# Catch-all for errors.
 async def on_error(context: TurnContext, error: Exception):
-    # This check writes out errors to console log
-    # NOTE: In production environment, you should consider logging this to Azure
-    #       application insights.
     print(f"\n [on_turn_error]: {error}", file=sys.stderr)
     traceback.print_exc()
 
-    # Send a message to the user
     await context.send_activity("The bot encountered an error or bug.")
     await context.send_activity(
         "To continue to run this bot, please fix the bot source code."
     )
-    # Send a trace activity if we're talking to the Bot Framework Emulator
     if context.activity.channel_id == "emulator":
-        # Create a trace activity that contains the error object
         trace_activity = Activity(
             label="TurnError",
             name="on_turn_error Trace",
@@ -53,33 +44,22 @@ async def on_error(context: TurnContext, error: Exception):
             value_type="https://www.botframework.com/schemas/error",
         )
 
-        # Send a trace activity, which will be displayed in Bot Framework Emulator
         await context.send_activity(trace_activity)
 
-    # Clear out state
     await CONVERSATION_STATE.delete(context)
 
 
-# Set the error handler on the Adapter.
-# In this case, we want an unbound method, so MethodType is not needed.
 ADAPTER.on_turn_error = on_error
 
-# Create MemoryStorage, UserState and ConversationState
 MEMORY = MemoryStorage()
 CONVERSATION_STATE = ConversationState(MEMORY)
 USER_STATE = UserState(MEMORY)
 
-# create main dialog and bot
-# The bot interacts with the user via UserProfileDialog.
-# When the bots DialogBot class is created, the UserProfileDialog'
-# is set as its main dialog. The bot then uses a run_dialog helper method to access the dialog
 DIALOG = UserProfileDialog(USER_STATE)
 BOT = DialogBot(CONVERSATION_STATE, USER_STATE, DIALOG)
 
 
-# Listen for incoming requests on /api/messages.
 async def messages(req: Request) -> Response:
-    # Main bot message handler.
     if "application/json" in req.headers["Content-Type"]:
         body = await req.json()
     else:
@@ -95,8 +75,6 @@ async def messages(req: Request) -> Response:
 
 
 APP = web.Application(middlewares=[aiohttp_error_middleware])
-# Every middleware should accept two parameters, a request and a handler, and return the response.
-# Middleware itself is a coroutine that can modify either request or response or both
 APP.router.add_post("/api/messages", messages)
 
 if __name__ == "__main__":
