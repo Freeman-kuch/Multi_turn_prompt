@@ -22,8 +22,8 @@ from bot import DialogBot
 
 CONFIG = DefaultConfig()
 
-SETTINGS = BotFrameworkAdapterSettings(CONFIG.APP_ID, CONFIG.APP_PASSWORD)  # this is the bot adapter setting
-ADAPTER = BotFrameworkAdapter(SETTINGS)  # this is the bot adapter
+SETTINGS = BotFrameworkAdapterSettings(CONFIG.APP_ID, CONFIG.APP_PASSWORD)
+ADAPTER = BotFrameworkAdapter(SETTINGS)
 
 
 async def on_error(context: TurnContext, error: Exception):
