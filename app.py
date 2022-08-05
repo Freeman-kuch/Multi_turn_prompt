@@ -62,6 +62,7 @@ BOT = DialogBot(CONVERSATION_STATE, USER_STATE, DIALOG)
 async def messages(req: Request) -> Response:
     if "application/json" in req.headers["Content-Type"]:
         body = await req.json()
+        print(body.items())
     else:
         return Response(status=HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
 
