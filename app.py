@@ -9,16 +9,16 @@ from botbuilder.core import (
     BotFrameworkAdapter,
     BotFrameworkAdapterSettings,
     ConversationState,
-    MemoryStorage,
     TurnContext,
-    UserState,
+    MemoryStorage
 )
-from botbuilder.core.integration import aiohttp_error_middleware  # this is used in the instantiation of the api
+from botbuilder.core.integration import aiohttp_error_middleware
 from botbuilder.schema import Activity, ActivityTypes
 
-from config import DefaultConfig
+from config import DefaultConfig, cosDB_config
 from dialogs import UserProfileDialog
 from bot import DialogBot
+from botbuilder.azure import CosmosDbPartitionedStorage, CosmosDbPartitionedConfig
 
 CONFIG = DefaultConfig()
 
@@ -51,18 +51,18 @@ async def on_error(context: TurnContext, error: Exception):
 
 ADAPTER.on_turn_error = on_error
 
-MEMORY = MemoryStorage()
+MEMORY = MemoryStorage()  # this is a form of state management remodel it to cosmos db
+COSDB = CosmosDbPartitionedConfig(cosDB_config.uri, cosDB_config.key, "multi_turn_prompt", "user_data")
+cosdb_storage = CosmosDbPartitionedStorage(COSDB)
 CONVERSATION_STATE = ConversationState(MEMORY)
-USER_STATE = UserState(MEMORY)
 
-DIALOG = UserProfileDialog(USER_STATE)
-BOT = DialogBot(CONVERSATION_STATE, USER_STATE, DIALOG)
+DIALOG = UserProfileDialog(cosdb_storage)
+BOT = DialogBot(CONVERSATION_STATE, cosdb_storage, DIALOG)  # when using a DB the user state will be from the DB
 
 
 async def messages(req: Request) -> Response:
     if "application/json" in req.headers["Content-Type"]:
         body = await req.json()
-        print(body.items())
     else:
         return Response(status=HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
 

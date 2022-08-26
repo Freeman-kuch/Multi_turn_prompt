@@ -4,11 +4,13 @@ from botbuilder.schema import Attachment  # an attachment within an activity
 
 class UserProfile:
     """
-      This is our application state. Just a regular serializable Python class. That is to say this is the Bot memory
-    """
+      This is our application state. Just a regular serializable Python class."""
+    # I should add an id field here that will self increment
+    id = 0
 
     def __init__(self, name: str = "Anonymous", product_type: str = None, price_to_negotiate: int = 0,
                  picture_of_item: Attachment = None, purpose_of_negotiation: str = None):
+        self.id += 1
         self.name = name
         self.product_type = product_type
         self.purpose_of_negotiation = purpose_of_negotiation

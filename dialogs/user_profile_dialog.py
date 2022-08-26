@@ -13,18 +13,15 @@ from botbuilder.dialogs.choices import Choice
 from botbuilder.core import MessageFactory, UserState
 
 from data_models import UserProfile
+from botbuilder.azure import CosmosDbPartitionedStorage
+import json
 
 
-class UserProfileDialog(
-    ComponentDialog):  # this is where the steps for the dialog is defined, i.e the prompts and the waterfall steps
-    def __init__(self, user_state: UserState):
+class UserProfileDialog(ComponentDialog):
+    def __init__(self, user_state: CosmosDbPartitionedStorage):
         super(UserProfileDialog, self).__init__(UserProfileDialog.__name__)
 
-        """here we are trying to define all the prompts for the user and followed by adding it to a dialog set"""
-
-        self.user_profile_accessor = user_state.create_property(
-            "UserProfile")  # creates an entry(more like a database) for this dialog in the memory
-
+        self.user_state = user_state
         self.add_dialog(
             WaterfallDialog(
                 WaterfallDialog.__name__,
@@ -101,7 +98,7 @@ class UserProfileDialog(
         return await step_context.end_dialog()
 
     async def price_to_negotiate_step(self, step_context: WaterfallStepContext) -> DialogTurnResult:
-        step_context.values["product_type"] = step_context.result
+        step_context.values["product_type"] = step_context.result.value
         if not step_context.result:
             await step_context.context.send_activity(MessageFactory.text("so Proceed to payment at www.e-commerce.com"))
             return await step_context.next(0)
@@ -153,26 +150,27 @@ class UserProfileDialog(
             self, step_context: WaterfallStepContext
     ) -> DialogTurnResult:
         if step_context.result:
-            user_profile = await self.user_profile_accessor.get(
-                step_context.context, UserProfile
-            )
 
-            user_profile.name = step_context.values["name"]
-            user_profile.product_type = step_context.values["product_type"]
-            user_profile.purpose_of_negotiation = step_context.values["purpose_of_negotiation"]
-            user_profile.price_of_negotiation = step_context.values["price_to_negotiate"]
-            user_profile.picture_of_item = step_context.values["picture_of_item"]
+            data = UserProfile(name=step_context.values["name"],
+                               product_type=step_context.values["product_type"],
+                               purpose_of_negotiation=step_context.values["purpose_of_negotiation"],
+                               price_to_negotiate=step_context.values["price_to_negotiate"],
+                               picture_of_item=step_context.values["picture_of_item"],
+                               )
 
-            msg = f"I have your purpose of negotiation as {user_profile.purpose_of_negotiation} and your name as {user_profile.name}."
-            if not user_profile.product_type:
-                msg += f" And product type as {user_profile.product_type}."
+            await self.user_state.initialize()
+            await self.user_state.write({data.name: data.__dict__})
+
+            msg = f"I have your purpose of negotiation as {data.purpose_of_negotiation} and your name as {data.name}."
+            if not data.product_type:
+                msg += f" And product type as {data.product_type}."
 
             await step_context.context.send_activity(MessageFactory.text(msg))
 
-            if user_profile.picture_of_item:
+            if data.picture_of_item:
                 await step_context.context.send_activity(
                     MessageFactory.attachment(
-                        user_profile.picture_of_item, "This is the item you want to negotiate price on."
+                        data.picture_of_item, "This is the item you want to negotiate price on."
                     )
                 )
             else:

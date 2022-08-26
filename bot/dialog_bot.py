@@ -1,11 +1,12 @@
-from botbuilder.core import ActivityHandler, ConversationState, TurnContext, UserState
+from botbuilder.core import ActivityHandler, ConversationState, TurnContext
 from botbuilder.dialogs import Dialog
 from helpers.dialog_helper import DialogHelper
+from botbuilder.azure import CosmosDbPartitionedStorage
 
 
 class DialogBot(ActivityHandler):
     """
-    This Bot implementation can run any type of Dialog. The use of type parameterization is to allows multiple
+        This Bot implementation can run any type of Dialog. The use of type parameterization is to allows multiple
     different bots to be run at different endpoints within the same project. This can be achieved by defining distinct
     Controller types each with dependency on distinct Bot types. The ConversationState is used by the Dialog system. The
     UserState isn't, however, it might have been used in a Dialog implementation, and the requirement is that all
@@ -13,10 +14,10 @@ class DialogBot(ActivityHandler):
     """
 
     def __init__(
-        self,
-        conversation_state: ConversationState,
-        user_state: UserState,
-        dialog: Dialog,
+            self,
+            conversation_state: ConversationState,
+            user_state: CosmosDbPartitionedStorage,
+            dialog: Dialog,
     ):
         if conversation_state is None:
             raise TypeError(
@@ -31,14 +32,19 @@ class DialogBot(ActivityHandler):
 
         self.conversation_state = conversation_state
         self.user_state = user_state
+        # should create a state property accessor
         self.dialog = dialog
 
     async def on_turn(self, turn_context: TurnContext):
+        """when working with a database, allow one state_property accessor to track the conversation
+        on each turn and the other saves it to the DataBase"""
+
+
         await super().on_turn(turn_context)
 
-        # Save any state changes that might have ocurred during the turn.
+        # Save any state changes that might have occurred during the turn.
         await self.conversation_state.save_changes(turn_context)
-        await self.user_state.save_changes(turn_context)
+        # await self.user_state.write(turn_context)
 
     # this basically starts up a state/ dialog using the dialog helper
     async def on_message_activity(self, turn_context: TurnContext):
