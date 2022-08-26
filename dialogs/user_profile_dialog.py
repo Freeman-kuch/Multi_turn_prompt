@@ -1,5 +1,5 @@
 #! Python 3
-from botbuilder.dialogs import ComponentDialog, WaterfallDialog, WaterfallStepContext, DialogTurnResult  # all these are the Dialog libraries. remember bot sdk provides message/activity handler, dialog libraries and custom bot class and custom logic
+from botbuilder.dialogs import ComponentDialog, WaterfallDialog, WaterfallStepContext, DialogTurnResult
 from botbuilder.dialogs.prompts import (
     TextPrompt,
     NumberPrompt,
@@ -10,11 +10,10 @@ from botbuilder.dialogs.prompts import (
     PromptValidatorContext
 )
 from botbuilder.dialogs.choices import Choice
-from botbuilder.core import MessageFactory, UserState
+from botbuilder.core import MessageFactory
 
 from data_models import UserProfile
 from botbuilder.azure import CosmosDbPartitionedStorage
-import json
 
 
 class UserProfileDialog(ComponentDialog):
@@ -199,7 +198,6 @@ class UserProfileDialog(ComponentDialog):
                 "No attachments received. Proceeding without a profile picture..."
             )
 
-            # We can return true from a validator function even if recognized.succeeded is false.
             return True
 
         attachments = prompt_context.recognized.value

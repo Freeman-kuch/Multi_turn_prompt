@@ -1,11 +1,10 @@
 
-from botbuilder.schema import Attachment  # an attachment within an activity
+from botbuilder.schema import Attachment
 
 
 class UserProfile:
     """
       This is our application state. Just a regular serializable Python class."""
-    # I should add an id field here that will self increment
     id = 0
 
     def __init__(self, name: str = "Anonymous", product_type: str = None, price_to_negotiate: int = 0,

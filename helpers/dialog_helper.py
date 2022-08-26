@@ -13,4 +13,4 @@ class DialogHelper:
         dialog_context = await dialog_set.create_context(turn_context)
         results = await dialog_context.continue_dialog()
         if results.status == DialogTurnStatus.Empty:
-            await dialog_context.begin_dialog(dialog.id)  # this starts the dialog in cases of a waterfall dialog or component dialog.
+            await dialog_context.begin_dialog(dialog.id)

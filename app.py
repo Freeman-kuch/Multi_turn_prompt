@@ -51,13 +51,13 @@ async def on_error(context: TurnContext, error: Exception):
 
 ADAPTER.on_turn_error = on_error
 
-MEMORY = MemoryStorage()  # this is a form of state management remodel it to cosmos db
+MEMORY = MemoryStorage()
 COSDB = CosmosDbPartitionedConfig(cosDB_config.uri, cosDB_config.key, "multi_turn_prompt", "user_data")
 cosdb_storage = CosmosDbPartitionedStorage(COSDB)
 CONVERSATION_STATE = ConversationState(MEMORY)
 
 DIALOG = UserProfileDialog(cosdb_storage)
-BOT = DialogBot(CONVERSATION_STATE, cosdb_storage, DIALOG)  # when using a DB the user state will be from the DB
+BOT = DialogBot(CONVERSATION_STATE, cosdb_storage, DIALOG)
 
 
 async def messages(req: Request) -> Response:
