@@ -157,7 +157,6 @@ class UserProfileDialog(ComponentDialog):
                                picture_of_item=step_context.values["picture_of_item"],
                                )
 
-            await self.user_state.initialize()
             await self.user_state.write({data.name: data.__dict__})
 
             msg = f"I have your purpose of negotiation as {data.purpose_of_negotiation} and your name as {data.name}."

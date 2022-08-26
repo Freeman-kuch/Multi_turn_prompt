@@ -44,7 +44,7 @@ class DialogBot(ActivityHandler):
 
         # Save any state changes that might have occurred during the turn.
         await self.conversation_state.save_changes(turn_context)
-        # await self.user_state.write(turn_context)
+        await self.user_state.initialize()
 
     # this basically starts up a state/ dialog using the dialog helper
     async def on_message_activity(self, turn_context: TurnContext):
