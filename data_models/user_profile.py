@@ -9,7 +9,7 @@ class UserProfile:
 
     def __init__(self, name: str = "Anonymous", product_type: str = None, price_to_negotiate: int = 0,
                  picture_of_item: Attachment = None, purpose_of_negotiation: str = None):
-        self.id += 1
+        self.id = id + 1
         self.name = name
         self.product_type = product_type
         self.purpose_of_negotiation = purpose_of_negotiation
