@@ -32,7 +32,7 @@ class DialogBot(ActivityHandler):
 
         self.conversation_state = conversation_state
         self.user_state = user_state
-        self.user_initializer =  user_state.initialize()
+        self.user_initializer = user_state.initialize()
         # should create a state property accessor
         self.dialog = dialog
 

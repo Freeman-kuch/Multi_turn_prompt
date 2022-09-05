@@ -17,7 +17,7 @@ from botbuilder.azure import CosmosDbPartitionedStorage
 
 
 class UserProfileDialog(ComponentDialog):
-    def __init__(self, user_state: CosmosDbPartitionedStorage):
+    def __init__(self, user_state: CosmosDbPartitionedStorage):  # when initializing this class you'd need to add cosmosDB
         super(UserProfileDialog, self).__init__(UserProfileDialog.__name__)
 
         self.user_state = user_state
